@@ -1,8 +1,14 @@
-#include<iostream>
+#include <iostream>
 #include <string>
-#include <algorithm> 
+#include <algorithm>
+#include <string.h>
 
 using namespace std;
+
+const int BASE_WEIGHT = 1;
+const int COMBO_WEIGHT = 4;
+const char PLAYER = 15;
+const char CPU = 254;
 
 void repaint(char[][7]);
 bool gameOver(int, int, bool, char board[][7]);
@@ -18,8 +24,7 @@ int main() {
 		int row, col;
 		repaint(board);
 		do {
-			do {
-			} while (!takeTurn(row, col, cpuTurn, board));
+			while (!takeTurn(row, col, cpuTurn, board));
 			repaint(board);
 		} while (!gameOver(row, col, !cpuTurn, board));
 	} while (continuePlaying());
@@ -102,11 +107,11 @@ bool gameOver(int r, int c, bool cpuTurn, char board[][7]) {
 bool takeTurn(int& row, int& col, bool& cpuTurn, char board[][7]) {
 	char chip;
 	if (cpuTurn) {
-		chip = 254;
+		chip = CPU;
 		col = cpuChooseCol(board);
 	}
 	else {
-		chip = 15;
+		chip = PLAYER;
 		cout << "Choose a column. (1 - 7)\n";
 		cin >> col;
 		--col;
@@ -134,37 +139,70 @@ int cpuChooseCol(char board[][7]) {
 	for (int col = 0; col < 7; ++col) {
 		for (int row = 0; row < 6; ++row) {
 			if (board[row][col] == ' ') {
-				int verticalCounter = 1;
-				for (int iRow = row + 1, stop = min(row + 3, 5); iRow <= stop && board[iRow][col] != 15; ++iRow)
-					verticalCounter++;
-				for (int iRow = row - 1, stop = max(row - 3, 0); iRow >= stop && board[iRow][col] != 15; --iRow)
-					verticalCounter++;
-				if (verticalCounter < 4)
+				int verticalCounterC = 0, verticalCounter = 0, iRow, iCol, sRow, sCol;
+				for (iRow = row + 1, sRow = min(row + 3, 5); iRow <= sRow && board[iRow][col] != PLAYER; ++iRow){
+                    if(board[iRow][col] == CPU)
+                        verticalCounterC += COMBO_WEIGHT;
+					verticalCounter += BASE_WEIGHT;
+				}
+				for (iRow = row - 1, sRow = max(row - 3, 0); iRow >= sRow && board[iRow][col] != PLAYER; --iRow){
+                    if(board[iRow][col] == CPU)
+                        verticalCounterC += COMBO_WEIGHT;
+					verticalCounter += BASE_WEIGHT;
+				}
+				if (verticalCounter < BASE_WEIGHT*3)
 					verticalCounter = 0;
+                else
+                    verticalCounter += verticalCounterC;
 
-				int horizontalCounter = 1;
-				for (int iCol = col + 1, stop = min(col + 3, 6); iCol <= stop && board[row][iCol] != 15; ++iCol)
-					horizontalCounter++;
-				for (int iCol = col - 1, stop = max(col - 3, 0); iCol >= stop && board[row][iCol] != 15; --iCol)
-					horizontalCounter++;
-				if (horizontalCounter < 4)
+
+				int horizontalCounterC = 0, horizontalCounter = 0;
+				for (iCol = col + 1, sCol = min(col + 3, 6); iCol <= sCol && board[row][iCol] != PLAYER; ++iCol){
+                    if(board[row][iCol] == CPU)
+                        horizontalCounterC += COMBO_WEIGHT;
+					horizontalCounter += BASE_WEIGHT;
+				}
+				for (iCol = col - 1, sCol = max(col - 3, 0); iCol >= sCol && board[row][iCol] != PLAYER; --iCol){
+                    if(board[row][iCol] == CPU)
+                        horizontalCounterC += COMBO_WEIGHT;
+					horizontalCounter += BASE_WEIGHT;
+				}
+				if (horizontalCounter < BASE_WEIGHT*3)
 					horizontalCounter = 0;
+                else
+                    horizontalCounter += horizontalCounterC;
 
-				int diagonalCounter1 = 1;
-				for (int iRow = row + 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = min(row + 3, 5); iCol <= sCol && iRow <= sRow && board[iRow][iCol] != 15; ++iCol, ++iRow)
-					diagonalCounter1++;
-				for (int iRow = row - 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = max(row - 3, 0); iCol >= sCol && iRow >= sRow && board[iRow][iCol] != 15; --iCol, --iRow)
-					diagonalCounter1++;
-				if (diagonalCounter1 < 4)
+				int diagonalCounter1C = 0, diagonalCounter1 = 0;
+				for (iRow = row + 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = min(row + 3, 5); iCol <= sCol && iRow <= sRow && board[iRow][iCol] != PLAYER; ++iCol, ++iRow){
+                    if(board[iRow][iCol] == CPU)
+                        diagonalCounter1C += COMBO_WEIGHT;
+					diagonalCounter1 += BASE_WEIGHT;
+				}
+				for (iRow = row - 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = max(row - 3, 0); iCol >= sCol && iRow >= sRow && board[iRow][iCol] != PLAYER; --iCol, --iRow){
+                    if(board[iRow][iCol] == CPU)
+                        diagonalCounter1C += COMBO_WEIGHT;
+					diagonalCounter1 += BASE_WEIGHT;
+				}
+				if (diagonalCounter1 < BASE_WEIGHT*3)
 					diagonalCounter1 = 0;
+                else
+                    diagonalCounter1 += diagonalCounter1C;
 
-				int diagonalCounter2 = 1;
-				for (int iRow = row - 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = max(row - 3, 0); iCol <= sCol && iRow >= sRow && board[iRow][iCol] != 15; ++iCol, --iRow)
-					diagonalCounter2++;
-				for (int iRow = row + 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = min(row + 3, 5); iCol >= sCol && iRow <= sRow && board[iRow][iCol] != 15; --iCol, ++iRow)
-					diagonalCounter2++;
-				if (diagonalCounter2 < 4)
+				int diagonalCounter2C = 0, diagonalCounter2 = 0;
+				for (iRow = row - 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = max(row - 3, 0); iCol <= sCol && iRow >= sRow && board[iRow][iCol] != PLAYER; ++iCol, --iRow){
+                    if(board[iRow][iCol] == CPU)
+                        diagonalCounter2C += COMBO_WEIGHT;
+					diagonalCounter2 += BASE_WEIGHT;
+				}
+				for (iRow = row + 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = min(row + 3, 5); iCol >= sCol && iRow <= sRow && board[iRow][iCol] != PLAYER; --iCol, ++iRow){
+                    if(board[iRow][iCol] == CPU)
+                        diagonalCounter2C += COMBO_WEIGHT;
+					diagonalCounter2 += BASE_WEIGHT;
+				}
+				if (diagonalCounter2 < BASE_WEIGHT*3)
 					diagonalCounter2 = 0;
+                else
+                    diagonalCounter2 += diagonalCounter2C;
 
 				colVals[col] = verticalCounter + horizontalCounter + diagonalCounter1 + diagonalCounter2;
 				break;
