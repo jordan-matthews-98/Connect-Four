@@ -1,5 +1,6 @@
 #include<iostream>
 #include <string>
+#include <algorithm> 
 
 using namespace std;
 
@@ -15,9 +16,9 @@ int main() {
 		memset(board, ' ', sizeof(char) * 6 * 7);
 		bool cpuTurn = false;
 		int row, col;
+		repaint(board);
 		do {
 			do {
-				repaint(board);
 			} while (!takeTurn(row, col, cpuTurn, board));
 			repaint(board);
 		} while (!gameOver(row, col, !cpuTurn, board));
@@ -129,9 +130,46 @@ bool continuePlaying() {
 }
 
 int cpuChooseCol(char board[][7]) {
+	int colVals[7] = { 0 };
 	for (int col = 0; col < 7; ++col) {
-		if (board[5][col] == ' ') {
-			return col;
+		for (int row = 0; row < 6; ++row) {
+			if (board[row][col] == ' ') {
+				int verticalCounter = 1;
+				for (int iRow = row + 1, stop = min(row + 3, 5); iRow <= stop && board[iRow][col] != 15; ++iRow)
+					verticalCounter++;
+				for (int iRow = row - 1, stop = max(row - 3, 0); iRow >= stop && board[iRow][col] != 15; --iRow)
+					verticalCounter++;
+				if (verticalCounter < 4)
+					verticalCounter = 0;
+
+				int horizontalCounter = 1;
+				for (int iCol = col + 1, stop = min(col + 3, 6); iCol <= stop && board[row][iCol] != 15; ++iCol)
+					horizontalCounter++;
+				for (int iCol = col - 1, stop = max(col - 3, 0); iCol >= stop && board[row][iCol] != 15; --iCol)
+					horizontalCounter++;
+				if (horizontalCounter < 4)
+					horizontalCounter = 0;
+
+				int diagonalCounter1 = 1;
+				for (int iRow = row + 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = min(row + 3, 5); iCol <= sCol && iRow <= sRow && board[iRow][iCol] != 15; ++iCol, ++iRow)
+					diagonalCounter1++;
+				for (int iRow = row - 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = max(row - 3, 0); iCol >= sCol && iRow >= sRow && board[iRow][iCol] != 15; --iCol, --iRow)
+					diagonalCounter1++;
+				if (diagonalCounter1 < 4)
+					diagonalCounter1 = 0;
+
+				int diagonalCounter2 = 1;
+				for (int iRow = row - 1, iCol = col + 1, sCol = min(col + 3, 6), sRow = max(row - 3, 0); iCol <= sCol && iRow >= sRow && board[iRow][iCol] != 15; ++iCol, --iRow)
+					diagonalCounter2++;
+				for (int iRow = row + 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = min(row + 3, 5); iCol >= sCol && iRow <= sRow && board[iRow][iCol] != 15; --iCol, ++iRow)
+					diagonalCounter2++;
+				if (diagonalCounter2 < 4)
+					diagonalCounter2 = 0;
+
+				colVals[col] = verticalCounter + horizontalCounter + diagonalCounter1 + diagonalCounter2;
+				break;
+			}
 		}
 	}
+	return distance(colVals, max_element(colVals, colVals + 7));
 }
