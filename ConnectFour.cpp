@@ -12,7 +12,8 @@ const char PLAYER = 15;
 const char CPU = 254;
 
 void repaint(char[][7]);
-bool gameOver(int, int, bool, char board[][7]);
+bool isWin(int, int, char [][7]);
+bool gameOver(int, int, bool, char [][7]);
 bool takeTurn(int&, int&, bool&, char[][7]);
 bool continuePlaying();
 int cpuChooseCol(char board[][7]);
@@ -51,7 +52,7 @@ void repaint(char board[][7]) {
 	}
 }
 
-bool gameOver(int r, int c, bool cpuTurn, char board[][7]) {
+bool isWin(int r, int c, char board[][7]) {
 	int vertical = 1;
 	int horizontal = 1;
 	int diagonal1 = 1;
@@ -60,48 +61,32 @@ bool gameOver(int r, int c, bool cpuTurn, char board[][7]) {
 	int ii;
 	for (i = r + 1; i <= 5 && board[i][c] == board[r][c]; i++, vertical++);
 	for (i = r - 1; board[i][c] == board[r][c] && i >= 0; i--, vertical++);
-	if (vertical >= 4) {
-		if (cpuTurn) {
-			cout << "You lost.\n";
-		}
-		else {
-			cout << "You won!\n";
-		}
+	if (vertical >= 4)
 		return true;
-	}
 	for (ii = c - 1; ii >= 0 && board[r][ii] == board[r][c]; ii--, horizontal++);
 	for (ii = c + 1; ii <= 6 && board[r][ii] == board[r][c]; ii++, horizontal++);
-	if (horizontal >= 4) {
-		if (cpuTurn) {
-			cout << "You lost.\n";
-		}
-		else {
-			cout << "You won!\n";
-		}
+	if (horizontal >= 4)
 		return true;
-	}
 	for (i = r - 1, ii = c - 1; i >= 0 && ii >= 0 && board[i][ii] == board[r][c]; diagonal1++, i--, ii--);
 	for (i = r + 1, ii = c + 1; i <= 5 && ii <= 6 && board[i][ii] == board[r][c]; diagonal1++, i++, ii++);
-	if (diagonal1 >= 4) {
-		if (cpuTurn) {
-			cout << "You lost.\n";
-		}
-		else {
-			cout << "You won!\n";
-		}
+	if (diagonal1 >= 4)
 		return true;
-	}
 	for (i = r - 1, ii = c + 1; i >= 0 && ii <= 6 && board[i][ii] == board[r][c]; diagonal2++, i--, ii++);
 	for (i = r + 1, ii = c - 1; i <= 5 && ii >= 0 && board[i][ii] == board[r][c]; diagonal2++, i++, ii--);
-	if (diagonal2 >= 4) {
+	if (diagonal2 >= 4)
+		return true;
+	return false;
+}
+
+bool gameOver(int r, int c, bool cpuTurn, char board[][7]) {
+    if(isWin(r, c, board)){
 		if (cpuTurn) {
 			cout << "You lost.\n";
 		}
 		else {
 			cout << "You won!\n";
 		}
-		return true;
-	}
+    }
 	return false;
 }
 
@@ -147,7 +132,7 @@ int cpuChooseCol(char board[][7]) {
 					verticalCounter += BASE_WEIGHT;
 				}
 				for(; iRow <= sRow && board[iRow][col] == PLAYER; ++iRow){
-                    verticalCounterD += DEFENSIVE_WEIGHT*(7-(iRow - row));
+                    verticalCounterD += DEFENSIVE_WEIGHT * (7 - (iRow - row));
 				}
 				for (iRow = row - 1, sRow = max(row - 3, 0); iRow >= sRow && board[iRow][col] != PLAYER; --iRow){
                     if(board[iRow][col] == CPU)
@@ -155,7 +140,7 @@ int cpuChooseCol(char board[][7]) {
 					verticalCounter += BASE_WEIGHT;
 				}
 				for(; iRow >= sRow && board[iRow][col] == PLAYER; --iRow){
-                    verticalCounterD += DEFENSIVE_WEIGHT*(7-(row - iRow));
+                    verticalCounterD += DEFENSIVE_WEIGHT * (7 - (row - iRow));
 				}
 				if (verticalCounterC >= COMBO_WEIGHT*3)
                     return col;
@@ -171,7 +156,7 @@ int cpuChooseCol(char board[][7]) {
 					horizontalCounter += BASE_WEIGHT;
 				}
 				for(; iCol <= sCol && board[row][iCol] == PLAYER; ++iCol){
-                    horizontalCounterD += DEFENSIVE_WEIGHT*(7-(iCol - col));
+                    horizontalCounterD += DEFENSIVE_WEIGHT * (7 - (iCol - col));
 				}
 				for (iCol = col - 1, sCol = max(col - 3, 0); iCol >= sCol && board[row][iCol] != PLAYER; --iCol){
                     if(board[row][iCol] == CPU)
@@ -179,7 +164,7 @@ int cpuChooseCol(char board[][7]) {
 					horizontalCounter += BASE_WEIGHT;
 				}
 				for(; iCol >= sCol && board[row][iCol] == PLAYER; --iCol){
-                    horizontalCounterD += DEFENSIVE_WEIGHT*(7-(col - iCol));
+                    horizontalCounterD += DEFENSIVE_WEIGHT * (7 - (col - iCol));
 				}
 				if (horizontalCounterC >= COMBO_WEIGHT*3)
                     return col;
@@ -195,7 +180,7 @@ int cpuChooseCol(char board[][7]) {
 					diagonalCounter1 += BASE_WEIGHT;
 				}
 				for(; iCol <= sCol && iRow <= sRow && board[iRow][iCol] == PLAYER; ++iCol, ++iRow){
-                    diagonalCounter1D += DEFENSIVE_WEIGHT*(7-(iCol - col));
+                    diagonalCounter1D += DEFENSIVE_WEIGHT * (7 - (iCol - col));
 				}
 				for (iRow = row - 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = max(row - 3, 0); iCol >= sCol && iRow >= sRow && board[iRow][iCol] != PLAYER; --iCol, --iRow){
                     if(board[iRow][iCol] == CPU)
@@ -203,7 +188,7 @@ int cpuChooseCol(char board[][7]) {
 					diagonalCounter1 += BASE_WEIGHT;
 				}
 				for(; iCol >= sCol && iRow >= sRow && board[iRow][iCol] == PLAYER; --iCol, --iRow){
-                    diagonalCounter1D += DEFENSIVE_WEIGHT*(7-(col - iCol));
+                    diagonalCounter1D += DEFENSIVE_WEIGHT * (7 - (col - iCol));
 				}
 				if (diagonalCounter1C >= COMBO_WEIGHT*3)
                     return col;
@@ -219,7 +204,7 @@ int cpuChooseCol(char board[][7]) {
 					diagonalCounter2 += BASE_WEIGHT;
 				}
 				for(; iCol <= sCol && iRow >= sRow && board[iRow][iCol] == PLAYER; ++iCol, --iRow){
-                    diagonalCounter2D += DEFENSIVE_WEIGHT*(7-(iCol - col));
+                    diagonalCounter2D += DEFENSIVE_WEIGHT * (7 - (iCol - col));
 				}
 				for (iRow = row + 1, iCol = col - 1, sCol = max(col - 3, 0), sRow = min(row + 3, 5); iCol >= sCol && iRow <= sRow && board[iRow][iCol] != PLAYER; --iCol, ++iRow){
                     if(board[iRow][iCol] == CPU)
@@ -227,7 +212,7 @@ int cpuChooseCol(char board[][7]) {
 					diagonalCounter2 += BASE_WEIGHT;
 				}
 				for(; iCol >= sCol && iRow <= sRow && board[iRow][iCol] == PLAYER; --iCol, ++iRow){
-                    diagonalCounter2D += DEFENSIVE_WEIGHT*(7-(col - iCol));
+                    diagonalCounter2D += DEFENSIVE_WEIGHT * (7 - (col - iCol));
 				}
 				if (diagonalCounter2C >= COMBO_WEIGHT*3)
                     return col;
@@ -237,6 +222,13 @@ int cpuChooseCol(char board[][7]) {
                     diagonalCounter2 += diagonalCounter2C;
 
 				colVals[col] = verticalCounter + horizontalCounter + diagonalCounter1 + diagonalCounter2 + max(max(max(verticalCounterD, horizontalCounterD), diagonalCounter1D), diagonalCounter2D);
+
+				if(row < 5){
+                    board[row + 1][col] = PLAYER;
+                        if(isWin(row + 1, col, board))
+                            colVals[col] = -1;
+                    board[row + 1][col] = ' ';
+				}
 				break;
 			}
 		}
