@@ -150,6 +150,8 @@ int cpuChooseCol(char board[][7]) {
                         verticalCounterC += COMBO_WEIGHT;
 					verticalCounter += BASE_WEIGHT;
 				}
+				if (verticalCounterC >= COMBO_WEIGHT*3)
+                    return col;
 				if (verticalCounter < BASE_WEIGHT*3)
 					verticalCounter = 0;
                 else
@@ -167,6 +169,8 @@ int cpuChooseCol(char board[][7]) {
                         horizontalCounterC += COMBO_WEIGHT;
 					horizontalCounter += BASE_WEIGHT;
 				}
+				if (horizontalCounterC >= COMBO_WEIGHT*3)
+                    return col;
 				if (horizontalCounter < BASE_WEIGHT*3)
 					horizontalCounter = 0;
                 else
@@ -183,6 +187,8 @@ int cpuChooseCol(char board[][7]) {
                         diagonalCounter1C += COMBO_WEIGHT;
 					diagonalCounter1 += BASE_WEIGHT;
 				}
+				if (diagonalCounter1C >= COMBO_WEIGHT*3)
+                    return col;
 				if (diagonalCounter1 < BASE_WEIGHT*3)
 					diagonalCounter1 = 0;
                 else
@@ -199,6 +205,8 @@ int cpuChooseCol(char board[][7]) {
                         diagonalCounter2C += COMBO_WEIGHT;
 					diagonalCounter2 += BASE_WEIGHT;
 				}
+				if (diagonalCounter2C >= COMBO_WEIGHT*3)
+                    return col;
 				if (diagonalCounter2 < BASE_WEIGHT*3)
 					diagonalCounter2 = 0;
                 else
