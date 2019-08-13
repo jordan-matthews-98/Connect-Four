@@ -82,9 +82,11 @@ bool gameOver(int r, int c, bool cpuTurn, char board[][7]) {
     if(isWin(r, c, board)){
 		if (cpuTurn) {
 			cout << "You lost.\n";
+            return true;
 		}
 		else {
 			cout << "You won!\n";
+            return true;
 		}
     }
 	return false;
