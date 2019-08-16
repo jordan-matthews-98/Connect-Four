@@ -5,9 +5,9 @@
 
 using namespace std;
 
-const int BASE_WEIGHT = 1;
-const int COMBO_WEIGHT = 4;
-const int DEFENSIVE_WEIGHT = 6;
+const int BASE_WEIGHT = 1; // significance value for ability to made a connect 4 using the space
+const int COMBO_WEIGHT = 4; // significance value for connecting multiple chips to make a connect 2 or 3 (connecting 4 is coded as a return statement instead of incrementing a value)
+const int DEFENSIVE_WEIGHT = 6; // significance value for blocking enemy chips from creating a connect 4
 const char PLAYER = 15;
 const char CPU = 254;
 
@@ -123,17 +123,26 @@ bool continuePlaying() {
 }
 
 int cpuChooseCol(char board[][7]) {
-	int colVals[7] = { 0 };
+	int colVals[7] = { 0 }; // contains preference value for each column
+	// iterate through every column and find the place the chip will be placed
 	for (int col = 0; col < 7; ++col) {
 		for (int row = 0; row < 6; ++row) {
+            // finds where chip will be placed
 			if (board[row][col] == ' ') {
+                // verticalCounter is base value, verticalCounterD is defensive value, verticalCounterC is combo value
 				int verticalCounterD = 0, verticalCounterC = 0, verticalCounter = 0, iRow, iCol, sRow, sCol;
+                // while nothing will ever be above the chip, this is used for consistency, and verticalCounter may change
 				for (iRow = row + 1, sRow = min(row + 3, 5); iRow <= sRow && board[iRow][col] != PLAYER; ++iRow){
+				    // if you find a friendly chip increment the combo value
                     if(board[iRow][col] == CPU)
                         verticalCounterC += COMBO_WEIGHT;
+                    // if you don't find an enemy chip increment the base value
 					verticalCounter += BASE_WEIGHT;
 				}
+				// increment defensive counter depending on number of enemy chips that are blocked
 				for(; iRow <= sRow && board[iRow][col] == PLAYER; ++iRow){
+				    // equation is designed for system to prefer placing chips closer to enemy chips
+				    // the 7 could be changed to a value that could be edited by a machine learning algorithm
                     verticalCounterD += DEFENSIVE_WEIGHT * (7 - (iRow - row));
 				}
 				for (iRow = row - 1, sRow = max(row - 3, 0); iRow >= sRow && board[iRow][col] != PLAYER; --iRow){
@@ -144,8 +153,11 @@ int cpuChooseCol(char board[][7]) {
 				for(; iRow >= sRow && board[iRow][col] == PLAYER; --iRow){
                     verticalCounterD += DEFENSIVE_WEIGHT * (7 - (row - iRow));
 				}
+				// if you win, just place the chip
 				if (verticalCounterC >= COMBO_WEIGHT*3)
                     return col;
+				// if you can't create a connect 4 in that direction, there is no base value for that direction
+				// otherwise also add in the combo weight. (defensive weight added later)
 				if (verticalCounter < BASE_WEIGHT*3)
 					verticalCounter = 0;
                 else
@@ -223,8 +235,10 @@ int cpuChooseCol(char board[][7]) {
                 else
                     diagonalCounter2 += diagonalCounter2C;
 
+                // defensive value is different due to blocking 3 1s and 1 3 being very different
 				colVals[col] = verticalCounter + horizontalCounter + diagonalCounter1 + diagonalCounter2 + max(max(max(verticalCounterD, horizontalCounterD), diagonalCounter1D), diagonalCounter2D);
 
+				// if placing in the column gives the player a win, don't place there
 				if(row < 5){
                     board[row + 1][col] = PLAYER;
                         if(isWin(row + 1, col, board))
@@ -235,5 +249,6 @@ int cpuChooseCol(char board[][7]) {
 			}
 		}
 	}
+    // return index of column with highest preference value
 	return distance(colVals, max_element(colVals, colVals + 7));
 }
