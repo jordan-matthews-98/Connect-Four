@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int BASE_WEIGHT = 1; // significance value for ability to made a connect 4 using the space
+const int BASE_WEIGHT = 1; // significance value for ability to make a connect 4 using the space
 const int COMBO_WEIGHT = 4; // significance value for connecting multiple chips to make a connect 2 or 3 (connecting 4 is coded as a return statement instead of incrementing a value)
 const int DEFENSIVE_WEIGHT = 6; // significance value for blocking enemy chips from creating a connect 4
 const char PLAYER = 15;
