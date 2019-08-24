@@ -242,7 +242,7 @@ int cpuChooseCol(char board[][7]) {
 				if(row < 5){
                     board[row + 1][col] = PLAYER;
                         if(isWin(row + 1, col, board))
-                            colVals[col] = -1;
+                            colVals[col] = 1;
                     board[row + 1][col] = ' ';
 				}
 				break;
